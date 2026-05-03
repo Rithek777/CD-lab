@@ -2,7 +2,7 @@
 
 namespace fap {
 
-std::string_view toString(AllocationKind kind) {
+const char *toString(AllocationKind kind) {
   switch (kind) {
   case AllocationKind::ArrayExpressionTemporary:
     return "array expression temporary";
@@ -20,4 +20,3 @@ std::string_view toString(AllocationKind kind) {
 }
 
 } // namespace fap
-

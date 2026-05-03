@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string_view>
-
 namespace fap {
 
 enum class AllocationKind {
@@ -12,7 +10,6 @@ enum class AllocationKind {
   CopyInCopyOutTemporary
 };
 
-std::string_view toString(AllocationKind kind);
+const char *toString(AllocationKind kind);
 
 } // namespace fap
-

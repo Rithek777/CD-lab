@@ -8,6 +8,6 @@ build/
 *.pdb
 *.ilk
 *.mlir
+!tests/*.mlir
 *.mod
 *.smod
-

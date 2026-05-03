@@ -1,34 +1,34 @@
 # Flang Implicit Allocation Profiler and Optimizer
 
-This repository is a starter skeleton for a CD lab assignment focused on implicit heap allocations in LLVM Flang IR.
+This repository is a beginner-friendly CD lab project focused on implicit heap allocations in LLVM Flang IR.
 
-The final tool will scan Flang HLFIR/FIR IR and report allocation sites that may come from:
+The tool scans Flang HLFIR/FIR IR text and reports allocation sites that may come from:
 
 - array expression temporaries
 - array-valued function results
 - automatic reallocation on allocatable assignment
 - copy-in/copy-out or array section temporaries
 
-The first version intentionally does not implement the full analysis yet. It provides the repository layout, CMake build system, placeholder C++ entry points, documentation, and example Fortran programs.
+The current first working version scans textual MLIR/FIR/HLFIR input and reports `fir.allocmem` operations, matching `fir.freemem` operations, source locations, static size estimates when visible, and a simple reason classification.
 
 ## Project Layout
 
 ```text
 .
-├── CMakeLists.txt
-├── include/
-│   └── FAP/
-├── src/
-├── tests/
-├── examples/
-├── scripts/
-├── docs/
-└── report/
++-- CMakeLists.txt
++-- include/
+|   +-- FAP/
++-- src/
++-- tests/
++-- examples/
++-- scripts/
++-- docs/
++-- report/
 ```
 
-## Planned IR Focus
+## Current IR Focus
 
-The analysis will later inspect Flang-generated HLFIR/FIR and look for operations and patterns such as:
+The analysis scans MLIR text for operations and patterns such as:
 
 - `fir.allocmem`
 - `fir.freemem`
@@ -47,16 +47,34 @@ cmake -S . -B build
 cmake --build build
 ```
 
-Run the placeholder executable:
+Run the profiler:
 
 ```powershell
-.\build\Debug\faprof.exe --help
+.\build\Debug\flang-implicit-alloc-profiler.exe --help
 ```
 
 On single-config generators such as Ninja or Makefiles, the executable may be here instead:
 
 ```powershell
-.\build\faprof.exe --help
+.\build\flang-implicit-alloc-profiler.exe --help
+```
+
+## CLI Usage
+
+```powershell
+flang-implicit-alloc-profiler input.mlir
+```
+
+Example from the build directory on Windows:
+
+```powershell
+.\build\Debug\flang-implicit-alloc-profiler.exe tests\array_expression_temporary.mlir
+```
+
+Example report:
+
+```text
+line 12: implicit heap allocation detected, estimated size = 8.00 MB, reason = array expression temporary
 ```
 
 ## Optional LLVM/MLIR Mode
@@ -68,7 +86,7 @@ cmake -S . -B build -DFAP_ENABLE_LLVM=ON -DMLIR_DIR="path\to\mlir\cmake" -DLLVM_
 cmake --build build
 ```
 
-For this first skeleton, LLVM mode only prepares the build for future integration. The real HLFIR/FIR pass logic will be added later.
+LLVM mode currently prepares the build for future integration. This version uses a standalone textual MLIR scanner so the project can be built easily on a beginner machine.
 
 ## Example Flang Commands
 
@@ -83,9 +101,7 @@ Exact flags can vary across LLVM/Flang versions.
 
 ## Next Steps
 
-1. Add an MLIR parser or pass entry point.
-2. Walk operations in a module and identify `fir.allocmem` / `fir.freemem` pairs.
-3. Classify likely causes using nearby HLFIR/FIR operations such as `hlfir.expr`, `hlfir.assign`, and `hlfir.elemental`.
-4. Use source location metadata to report file, line, and column.
-5. Add optimizer suggestions, such as rewriting expressions, avoiding unnecessary array sections, or preallocating allocatables.
-
+1. Replace the textual scanner with MLIR parser APIs when LLVM/MLIR/Flang libraries are available.
+2. Improve classification using real operation parents, operands, and dialect interfaces.
+3. Add optimizer suggestions, such as rewriting expressions, avoiding unnecessary array sections, or preallocating allocatables.
+4. Add JSON or CSV output for profiling reports.

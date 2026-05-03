@@ -43,11 +43,10 @@ if(FAP_ENABLE_LLVM)
     ${MLIR_INCLUDE_DIRS})
 endif()
 
-add_executable(faprof src/main.cpp)
-target_link_libraries(faprof PRIVATE faprof_core)
+add_executable(flang-implicit-alloc-profiler src/main.cpp)
+target_link_libraries(flang-implicit-alloc-profiler PRIVATE faprof_core)
 
 if(FAP_BUILD_TESTS)
   enable_testing()
   add_subdirectory(tests)
 endif()
-
