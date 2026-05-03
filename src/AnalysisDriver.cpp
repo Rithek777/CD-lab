@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace fap {
 namespace {
@@ -148,6 +149,38 @@ std::string makeNote(bool hasStaticSize, bool hasMatchingFree) {
   return note;
 }
 
+bool hasRuntimeShape(const std::string &line) {
+  return line.find("!fir.array<?") != std::string::npos ||
+         line.find("!fir.array<*") != std::string::npos ||
+         line.find("typeparams") != std::string::npos;
+}
+
+bool hasCopyInOutMarker(const std::string &line) {
+  return line.find("fir.copy_in") != std::string::npos ||
+         line.find("fir.copy_out") != std::string::npos ||
+         line.find("copy-in") != std::string::npos ||
+         line.find("copy-out") != std::string::npos;
+}
+
+bool hasOverlapMarker(const std::string &line) {
+  return line.find("overlap") != std::string::npos ||
+         line.find("fir.slice") != std::string::npos ||
+         line.find("section") != std::string::npos;
+}
+
+bool lineUsesValue(const std::string &line, const std::string &valueName) {
+  return line.find(valueName) != std::string::npos;
+}
+
+bool useMayEscape(const std::string &line) {
+  return line.find("fir.call") != std::string::npos ||
+         line.find("fir.embox") != std::string::npos ||
+         line.find("fir.rebox") != std::string::npos ||
+         line.find("fir.store") != std::string::npos ||
+         line.find("hlfir.declare") != std::string::npos ||
+         line.find("return ") != std::string::npos;
+}
+
 } // namespace
 
 std::vector<AllocationRecord>
@@ -170,6 +203,23 @@ AnalysisDriver::analyzeFile(const std::string &path) const {
     ++lineNumber;
     const std::string stripped = trim(line);
 
+    for (auto &record : records) {
+      if (!record.valueName.empty() && lineUsesValue(stripped, record.valueName) &&
+          stripped.find("fir.freemem") == std::string::npos &&
+          stripped.find("fir.allocmem") == std::string::npos) {
+        if (useMayEscape(stripped)) {
+          record.hasPotentialEscape = true;
+          record.hasOnlyLocalUses = false;
+        }
+        if (hasCopyInOutMarker(stripped)) {
+          record.requiresCopyInOutCorrectness = true;
+        }
+        if (hasOverlapMarker(stripped)) {
+          record.hasOverlapRisk = true;
+        }
+      }
+    }
+
     std::smatch allocMatch;
     if (std::regex_search(stripped, allocMatch, allocPattern)) {
       AllocationRecord record;
@@ -179,6 +229,9 @@ AnalysisDriver::analyzeFile(const std::string &path) const {
       record.location = sourceLocationFor(path, stripped, lineNumber);
       record.estimatedBytes = estimateStaticBytes(stripped);
       record.hasStaticSize = record.estimatedBytes > 0;
+      record.hasRuntimeShape = hasRuntimeShape(stripped);
+      record.requiresCopyInOutCorrectness = hasCopyInOutMarker(stripped);
+      record.hasOverlapRisk = hasOverlapMarker(stripped);
       records.push_back(record);
     }
 

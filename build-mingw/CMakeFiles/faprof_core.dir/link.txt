@@ -1,2 +1,0 @@
-C:\MinGW\bin\ar.exe qc libfaprof_core.a CMakeFiles/faprof_core.dir/src/AnalysisDriver.cpp.obj CMakeFiles/faprof_core.dir/src/AllocationRecord.cpp.obj
-C:\MinGW\bin\ranlib.exe libfaprof_core.a

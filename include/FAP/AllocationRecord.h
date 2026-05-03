@@ -26,6 +26,11 @@ struct AllocationRecord {
   std::uint64_t estimatedBytes = 0;
   bool hasStaticSize = false;
   bool hasMatchingFree = false;
+  bool hasRuntimeShape = false;
+  bool hasOnlyLocalUses = true;
+  bool hasPotentialEscape = false;
+  bool requiresCopyInOutCorrectness = false;
+  bool hasOverlapRisk = false;
   std::string note;
 };
 

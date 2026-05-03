@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/cmake_install.cmake",
-		"C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/tests/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -8,3 +8,6 @@ add_test(NAME profiler_allocatable_assign
 add_test(NAME profiler_section_copy
   COMMAND flang-implicit-alloc-profiler
           ${CMAKE_CURRENT_SOURCE_DIR}/array_section_copy.mlir)
+add_test(NAME profiler_function_result
+  COMMAND flang-implicit-alloc-profiler
+          ${CMAKE_CURRENT_SOURCE_DIR}/function_result_temporary.mlir)

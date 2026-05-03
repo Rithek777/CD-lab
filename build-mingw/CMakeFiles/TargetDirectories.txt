@@ -1,8 +1,0 @@
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/CMakeFiles/faprof_core.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/CMakeFiles/flang-implicit-alloc-profiler.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/CMakeFiles/test.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/CMakeFiles/edit_cache.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/CMakeFiles/rebuild_cache.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/tests/CMakeFiles/test.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/tests/CMakeFiles/edit_cache.dir
-C:/Users/jprit/OneDrive/Desktop/CD lab/build-mingw/tests/CMakeFiles/rebuild_cache.dir

@@ -11,6 +11,14 @@ The tool scans Flang HLFIR/FIR IR text and reports allocation sites that may com
 
 The current first working version scans textual MLIR/FIR/HLFIR input and reports `fir.allocmem` operations, matching `fir.freemem` operations, source locations, static size estimates when visible, and a simple reason classification.
 
+It also classifies each allocation as:
+
+- `PROVABLY_UNNECESSARY`
+- `POSSIBLY_UNNECESSARY`
+- `NECESSARY`
+
+Each report includes a confidence score and suggested fix.
+
 ## Project Layout
 
 ```text
@@ -74,7 +82,8 @@ Example from the build directory on Windows:
 Example report:
 
 ```text
-line 12: implicit heap allocation detected, estimated size = 8.00 MB, reason = array expression temporary
+line 12: implicit heap allocation detected, estimated size = 8.00 MB, reason = array expression temporary, classification = PROVABLY_UNNECESSARY, confidence = 0.78
+  suggested fix: replace the whole-array expression with an explicit loop or stack-sized local buffer
 ```
 
 ## Optional LLVM/MLIR Mode

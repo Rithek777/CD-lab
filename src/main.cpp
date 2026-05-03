@@ -1,4 +1,5 @@
 #include "FAP/AnalysisDriver.h"
+#include "FAP/AllocationClassifier.h"
 #include "FAP/AllocationKind.h"
 
 #include <cstdint>
@@ -37,6 +38,7 @@ int main(int argc, char **argv) {
 
   try {
     fap::AnalysisDriver driver;
+    fap::AllocationClassifier classifier;
     const auto records = driver.analyzeFile(argv[1]);
 
     std::cout << "Flang Implicit Allocation Report\n"
@@ -49,6 +51,8 @@ int main(int argc, char **argv) {
     }
 
     for (const auto &record : records) {
+      const auto info = classifier.classify(record);
+
       std::cout << "line " << record.location.line
                 << ": implicit heap allocation detected";
 
@@ -61,6 +65,9 @@ int main(int argc, char **argv) {
       }
 
       std::cout << ", reason = " << fap::toString(record.kind)
+                << ", classification = " << fap::toString(info.classification)
+                << ", confidence = " << std::fixed << std::setprecision(2)
+                << info.confidence
                 << ", value = " << record.valueName
                 << ", matching free = "
                 << (record.hasMatchingFree ? "yes" : "no");
@@ -74,7 +81,9 @@ int main(int argc, char **argv) {
         std::cout << ", note = " << record.note;
       }
 
-      std::cout << '\n';
+      std::cout << '\n'
+                << "  classification reason: " << info.reason << '\n'
+                << "  suggested fix: " << info.suggestedFix << '\n';
     }
   } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << '\n';
