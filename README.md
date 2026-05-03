@@ -73,6 +73,7 @@ python scripts\transform_fortran.py examples\simple_array_expr.f90
 - Emits human-readable text reports and JSON reports.
 - Provides a conservative Python source-to-source transformer for simple Fortran array assignments.
 - Includes benchmark and evaluation scripts that produce Markdown and JSON results.
+- Includes a local browser UI for demos.
 
 ## Project Layout
 
@@ -147,6 +148,28 @@ Complex cases are skipped with reasons printed to stderr, for example:
 ```text
 line 19: skipped 'A = sin(B) + C': contains calls, components, or complex indexing
 ```
+
+## Local Web UI
+
+Start the demo UI from the repository root:
+
+```sh
+python3 scripts/serve_ui.py
+```
+
+On Windows:
+
+```powershell
+python scripts\serve_ui.py
+```
+
+Open:
+
+```text
+http://127.0.0.1:8765
+```
+
+The UI loads sample MLIR files from `tests/`, sends pasted input to the existing `flang-implicit-alloc-profiler` executable, and renders allocation classifications, sizes, source locations, reasons, and suggestions.
 
 ## Evaluation
 

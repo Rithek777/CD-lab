@@ -1,0 +1,293 @@
+:root {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-strong: #eef3f8;
+  --ink: #17212f;
+  --muted: #637083;
+  --line: #d6dde7;
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --warning: #b45309;
+  --danger: #b91c1c;
+  --ok: #166534;
+  --code: #101827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.shell {
+  width: min(1440px, 100%);
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.workspace {
+  display: flex;
+  min-height: calc(100vh - 40px);
+  flex-direction: column;
+  gap: 14px;
+}
+
+.topbar,
+.controls,
+.editorPane,
+.resultPane {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h1,
+h2 {
+  margin: 0;
+  letter-spacing: 0;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 15px;
+}
+
+.status {
+  min-width: 96px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.4fr) minmax(160px, 1fr) 120px 110px auto auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px;
+}
+
+label {
+  display: grid;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+select,
+input[type="number"] {
+  width: 100%;
+  height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  padding: 0 10px;
+}
+
+.toggle {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+button {
+  height: 38px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  padding: 0 14px;
+}
+
+button:first-of-type {
+  background: #fff;
+  color: var(--accent-strong);
+}
+
+button:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+  color: #fff;
+}
+
+.panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.9fr);
+  gap: 14px;
+  min-height: 0;
+  flex: 1;
+}
+
+.editorPane,
+.resultPane {
+  min-height: 520px;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.paneHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  color: var(--muted);
+}
+
+textarea {
+  flex: 1;
+  min-height: 460px;
+  width: 100%;
+  resize: none;
+  border: 0;
+  outline: none;
+  padding: 14px;
+  background: var(--code);
+  color: #e9eef7;
+  font: 13px/1.5 Consolas, "Cascadia Mono", monospace;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 14px;
+}
+
+.metric {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-strong);
+  padding: 12px;
+}
+
+.metric b {
+  display: block;
+  font-size: 22px;
+}
+
+.metric span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.allocations {
+  display: grid;
+  gap: 10px;
+  overflow: auto;
+  padding: 0 14px 14px;
+}
+
+.allocation {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.allocation.necessary {
+  border-left-color: var(--danger);
+}
+
+.allocation.possible {
+  border-left-color: var(--warning);
+}
+
+.allocation h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 5px 10px;
+}
+
+.kv dt {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.kv dd {
+  margin: 0;
+  word-break: break-word;
+}
+
+.rawReport {
+  display: none;
+  flex: 1;
+  margin: 0;
+  overflow: auto;
+  padding: 14px;
+  background: var(--code);
+  color: #e9eef7;
+  font: 13px/1.5 Consolas, "Cascadia Mono", monospace;
+  white-space: pre-wrap;
+}
+
+.showRaw .metrics,
+.showRaw .allocations {
+  display: none;
+}
+
+.showRaw .rawReport {
+  display: block;
+}
+
+@media (max-width: 960px) {
+  .controls,
+  .panes,
+  .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+

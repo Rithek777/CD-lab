@@ -12,8 +12,8 @@
 
 | Version | Compile | Run Status | Mean Seconds |
 | --- | --- | --- | ---: |
-| original | ok | ok | 0.058115 |
-| transformed | ok | ok | 0.070791 |
+| original | ok | ok | 0.074539 |
+| transformed | ok | ok | 0.052001 |
 
 ### Allocation Tools
 
@@ -36,8 +36,8 @@ line 15: skipped 'checksum = checksum + sum(a)': left-hand side looks like a sca
 
 | Version | Compile | Run Status | Mean Seconds |
 | --- | --- | --- | ---: |
-| original | ok | ok | 0.056035 |
-| transformed | ok | ok | 0.056578 |
+| original | ok | ok | 0.063130 |
+| transformed | ok | ok | 0.067690 |
 
 ### Allocation Tools
 
@@ -60,8 +60,8 @@ line 27: skipped 'values(i) = real(i) * 0.5': not a simple array assignment`
 
 | Version | Compile | Run Status | Mean Seconds |
 | --- | --- | --- | ---: |
-| original | ok | ok | 0.080379 |
-| transformed | ok | ok | 0.046625 |
+| original | ok | ok | 0.075190 |
+| transformed | ok | ok | 0.071763 |
 
 ### Allocation Tools
 
