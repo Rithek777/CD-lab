@@ -70,20 +70,51 @@ On single-config generators such as Ninja or Makefiles, the executable may be he
 ## CLI Usage
 
 ```powershell
-flang-implicit-alloc-profiler input.mlir
+flang-implicit-alloc-profiler [options] input.mlir
+```
+
+Options:
+
+- `--format=text` prints the default human-readable report
+- `--format=json` prints a JSON report
+- `--show-ir` includes the matched `fir.allocmem` line
+- `--threshold-mb=1` only reports allocations at least 1 MB; unknown sizes are kept visible
+
+Examples:
+
+```powershell
+flang-implicit-alloc-profiler --format=text tests\array_expression_temporary.mlir
+flang-implicit-alloc-profiler --format=json --show-ir tests\array_expression_temporary.mlir
+flang-implicit-alloc-profiler --threshold-mb=1 tests\array_expression_temporary.mlir
 ```
 
 Example from the build directory on Windows:
 
 ```powershell
-.\build\Debug\flang-implicit-alloc-profiler.exe tests\array_expression_temporary.mlir
+.\build-mingw\flang-implicit-alloc-profiler.exe --format=text tests\array_expression_temporary.mlir
 ```
 
 Example report:
 
 ```text
-line 12: implicit heap allocation detected, estimated size = 8.00 MB, reason = array expression temporary, classification = PROVABLY_UNNECESSARY, confidence = 0.78
-  suggested fix: replace the whole-array expression with an explicit loop or stack-sized local buffer
+line 12: array expression temporary generates 8.00 MB temporary array allocation
+classification: PROVABLY_UNNECESSARY
+suggestion: replace the whole-array expression with an explicit loop or stack-sized local buffer
+```
+
+JSON reports include the same fields using stable keys:
+
+```json
+{
+  "source_file": "examples/array_expression_temporary.f90",
+  "source_line": 12,
+  "source_column": 7,
+  "ir_operation_name": "fir.allocmem",
+  "estimated_bytes": 8388608,
+  "estimated_mb": 8.00,
+  "classification": "PROVABLY_UNNECESSARY",
+  "suggested_transformation": "replace the whole-array expression with an explicit loop or stack-sized local buffer"
+}
 ```
 
 ## Optional LLVM/MLIR Mode

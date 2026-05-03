@@ -22,6 +22,7 @@ struct AllocationRecord {
   AllocationKind kind = AllocationKind::Unknown;
   std::string operationName;
   std::string valueName;
+  std::string irText;
   SourceLocation location;
   std::uint64_t estimatedBytes = 0;
   bool hasStaticSize = false;

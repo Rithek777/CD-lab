@@ -226,6 +226,7 @@ AnalysisDriver::analyzeFile(const std::string &path) const {
       record.kind = classifyAllocation(context, stripped);
       record.operationName = "fir.allocmem";
       record.valueName = allocMatch[1].str();
+      record.irText = stripped;
       record.location = sourceLocationFor(path, stripped, lineNumber);
       record.estimatedBytes = estimateStaticBytes(stripped);
       record.hasStaticSize = record.estimatedBytes > 0;

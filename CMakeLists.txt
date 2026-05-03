@@ -21,7 +21,8 @@ option(FAP_BUILD_TESTS "Build project tests" ON)
 add_library(faprof_core OBJECT
   src/AnalysisDriver.cpp
   src/AllocationClassifier.cpp
-  src/AllocationRecord.cpp)
+  src/AllocationRecord.cpp
+  src/Report.cpp)
 
 target_include_directories(faprof_core
   PUBLIC

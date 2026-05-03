@@ -1,19 +1,23 @@
 #include "FAP/AnalysisDriver.h"
-#include "FAP/AllocationClassifier.h"
-#include "FAP/AllocationKind.h"
+#include "FAP/Report.h"
 
-#include <cstdint>
+#include <cstdlib>
 #include <exception>
-#include <iomanip>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 
 namespace {
 
 void printUsage(const char *programName) {
-  std::cout << "Usage: flang-implicit-alloc-profiler <input.mlir>\n\n"
+  std::cout << "Usage: flang-implicit-alloc-profiler [options] <input.mlir>\n\n"
             << "Flang Implicit Allocation Profiler and Optimizer\n"
             << "Scans textual Flang HLFIR/FIR MLIR for implicit heap allocations.\n\n"
+            << "Options:\n"
+            << "  --format=text       Print a human-readable report (default)\n"
+            << "  --format=json       Print a JSON report\n"
+            << "  --show-ir           Include the matched fir.allocmem line\n"
+            << "  --threshold-mb=N    Only report allocations at least N MB; unknown sizes remain visible\n\n"
             << "Detection targets:\n"
             << "  - fir.allocmem with matching fir.freemem\n"
             << "  - hlfir.expr and hlfir.elemental temporaries\n"
@@ -23,70 +27,83 @@ void printUsage(const char *programName) {
   (void)programName;
 }
 
-double bytesToMiB(std::uint64_t bytes) {
-  return static_cast<double>(bytes) / (1024.0 * 1024.0);
+struct CliOptions {
+  fap::ReportOptions report;
+  std::string inputPath;
+};
+
+bool startsWith(const std::string &text, const std::string &prefix) {
+  return text.size() >= prefix.size() &&
+         text.compare(0, prefix.size(), prefix) == 0;
+}
+
+CliOptions parseArgs(int argc, char **argv) {
+  CliOptions options;
+
+  for (int index = 1; index < argc; ++index) {
+    const std::string arg = argv[index];
+
+    if (arg == "--help" || arg == "-h") {
+      printUsage(argv[0]);
+      std::exit(0);
+    }
+
+    if (arg == "--show-ir") {
+      options.report.showIr = true;
+      continue;
+    }
+
+    if (startsWith(arg, "--format=")) {
+      const std::string value = arg.substr(std::string("--format=").size());
+      if (value == "text") {
+        options.report.format = fap::ReportFormat::Text;
+      } else if (value == "json") {
+        options.report.format = fap::ReportFormat::Json;
+      } else {
+        throw std::runtime_error("unknown report format: " + value);
+      }
+      continue;
+    }
+
+    if (startsWith(arg, "--threshold-mb=")) {
+      const std::string value =
+          arg.substr(std::string("--threshold-mb=").size());
+      options.report.thresholdMb = std::stod(value);
+      if (options.report.thresholdMb < 0.0) {
+        throw std::runtime_error("--threshold-mb must be non-negative");
+      }
+      continue;
+    }
+
+    if (!arg.empty() && arg[0] == '-') {
+      throw std::runtime_error("unknown option: " + arg);
+    }
+
+    if (!options.inputPath.empty()) {
+      throw std::runtime_error("only one input MLIR file can be provided");
+    }
+    options.inputPath = arg;
+  }
+
+  if (options.inputPath.empty()) {
+    throw std::runtime_error("missing input MLIR file");
+  }
+
+  return options;
 }
 
 } // namespace
 
 int main(int argc, char **argv) {
-  if (argc != 2 || std::string(argv[1]) == "--help" ||
-      std::string(argv[1]) == "-h") {
-    printUsage(argv[0]);
-    return argc == 2 ? 0 : 1;
-  }
-
   try {
+    const auto options = parseArgs(argc, argv);
     fap::AnalysisDriver driver;
-    fap::AllocationClassifier classifier;
-    const auto records = driver.analyzeFile(argv[1]);
-
-    std::cout << "Flang Implicit Allocation Report\n"
-              << "Input: " << argv[1] << '\n'
-              << "Allocations detected: " << records.size() << "\n\n";
-
-    if (records.empty()) {
-      std::cout << "No fir.allocmem operations found.\n";
-      return 0;
-    }
-
-    for (const auto &record : records) {
-      const auto info = classifier.classify(record);
-
-      std::cout << "line " << record.location.line
-                << ": implicit heap allocation detected";
-
-      if (record.hasStaticSize) {
-        std::cout << ", estimated size = " << std::fixed
-                  << std::setprecision(2) << bytesToMiB(record.estimatedBytes)
-                  << " MB";
-      } else {
-        std::cout << ", estimated size = unknown";
-      }
-
-      std::cout << ", reason = " << fap::toString(record.kind)
-                << ", classification = " << fap::toString(info.classification)
-                << ", confidence = " << std::fixed << std::setprecision(2)
-                << info.confidence
-                << ", value = " << record.valueName
-                << ", matching free = "
-                << (record.hasMatchingFree ? "yes" : "no");
-
-      if (!record.location.file.empty()) {
-        std::cout << ", source = " << record.location.file << ':'
-                  << record.location.line << ':' << record.location.column;
-      }
-
-      if (!record.note.empty()) {
-        std::cout << ", note = " << record.note;
-      }
-
-      std::cout << '\n'
-                << "  classification reason: " << info.reason << '\n'
-                << "  suggested fix: " << info.suggestedFix << '\n';
-    }
+    fap::ReportWriter writer;
+    const auto records = driver.analyzeFile(options.inputPath);
+    writer.write(std::cout, options.inputPath, records, options.report);
   } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << '\n';
+    std::cerr << "run with --help for usage\n";
     return 1;
   }
 
