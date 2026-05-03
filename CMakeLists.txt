@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
+if(CMAKE_GENERATOR MATCHES "MinGW Makefiles")
+  set(CMAKE_CXX_LINK_EXECUTABLE
+      "<CMAKE_CXX_COMPILER> <FLAGS> <CMAKE_CXX_LINK_FLAGS> <LINK_FLAGS> <OBJECTS> -o <TARGET> <LINK_LIBRARIES>")
+endif()
+
 project(
   FlangImplicitAllocationProfiler
   VERSION 0.1.0

@@ -1,4 +1,7 @@
 add_test(NAME profiler_help COMMAND flang-implicit-alloc-profiler --help)
+add_test(NAME profiler_simple_alloc
+  COMMAND flang-implicit-alloc-profiler
+          ${CMAKE_CURRENT_SOURCE_DIR}/simple_alloc.mlir)
 add_test(NAME profiler_array_expr
   COMMAND flang-implicit-alloc-profiler
           ${CMAKE_CURRENT_SOURCE_DIR}/array_expression_temporary.mlir)

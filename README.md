@@ -1,31 +1,85 @@
 # Flang Implicit Allocation Profiler and Optimizer
 
-This repository is a beginner-friendly CD lab project focused on implicit heap allocations in LLVM Flang IR.
+A compiler design lab project that detects and explains implicit heap allocations in textual LLVM Flang HLFIR/FIR MLIR. The project includes a C++ profiler, JSON/text reporting, a conservative Fortran source transformation prototype, benchmark scripts, documentation, and a final report.
 
-The tool scans Flang HLFIR/FIR IR text and reports allocation sites that may come from:
+## Quick Start
 
-- array expression temporaries
-- array-valued function results
-- automatic reallocation on allocatable assignment
-- copy-in/copy-out or array section temporaries
+On Linux/macOS or a Unix-like shell with CMake and a C++ compiler:
 
-The current first working version scans textual MLIR/FIR/HLFIR input and reports `fir.allocmem` operations, matching `fir.freemem` operations, source locations, static size estimates when visible, and a simple reason classification.
+```sh
+mkdir build
+cd build
+cmake ..
+make
+./flang-implicit-alloc-profiler ../tests/simple_alloc.mlir
+```
 
-It also classifies each allocation as:
+Expected output:
 
-- `PROVABLY_UNNECESSARY`
-- `POSSIBLY_UNNECESSARY`
-- `NECESSARY`
+```text
+Flang Implicit Allocation Report
+Input: ../tests/simple_alloc.mlir
+Allocations reported: 1
+Threshold: 0.00 MB
 
-Each report includes a confidence score and suggested fix.
+line 13: array expression temporary generates 8.00 MB temporary array allocation
+source file: examples/simple_array_expr.f90
+source line: 13
+source column: 3
+IR operation: fir.allocmem
+estimated bytes: 8388608
+estimated MB: 8.00
+classification: PROVABLY_UNNECESSARY
+reason: temporary is local, has static shape, does not appear to escape, and is freed locally
+confidence: 0.78
+suggestion: replace the whole-array expression with an explicit loop or stack-sized local buffer
+```
+
+Run the source transformation prototype:
+
+```sh
+cd ..
+python3 scripts/transform_fortran.py examples/simple_array_expr.f90
+```
+
+Expected transformed snippet:
+
+```fortran
+! transformed by transform_fortran.py: explicit loop avoids an array temporary
+do i = 1, size(A)
+  A(i) = B(i) + C(i)
+end do
+```
+
+On Windows with MinGW:
+
+```powershell
+& "C:\Program Files\CMake\bin\cmake.exe" -S . -B build-mingw -G "MinGW Makefiles" -DCMAKE_CXX_COMPILER="C:\MinGW\bin\g++.exe"
+& "C:\Program Files\CMake\bin\cmake.exe" --build build-mingw
+.\build-mingw\flang-implicit-alloc-profiler.exe tests\simple_alloc.mlir
+python scripts\transform_fortran.py examples\simple_array_expr.f90
+```
+
+## Features
+
+- Detects `fir.allocmem` in textual Flang FIR/HLFIR MLIR.
+- Matches `fir.freemem` for local lifetime evidence.
+- Captures simple MLIR source locations like `loc("file":line:column)`.
+- Estimates static allocation sizes from visible FIR array types.
+- Classifies allocations as:
+  - `PROVABLY_UNNECESSARY`
+  - `POSSIBLY_UNNECESSARY`
+  - `NECESSARY`
+- Emits human-readable text reports and JSON reports.
+- Provides a conservative Python source-to-source transformer for simple Fortran array assignments.
+- Includes benchmark and evaluation scripts that produce Markdown and JSON results.
 
 ## Project Layout
 
 ```text
 .
 +-- CMakeLists.txt
-+-- include/
-|   +-- FAP/
++-- include/FAP/
 +-- src/
 +-- tests/
 +-- examples/
@@ -34,81 +88,35 @@ Each report includes a confidence score and suggested fix.
 +-- report/
 ```
 
-## Current IR Focus
-
-The analysis scans MLIR text for operations and patterns such as:
-
-- `fir.allocmem`
-- `fir.freemem`
-- `hlfir.expr`
-- `hlfir.assign`
-- `hlfir.elemental`
-- temporary arrays created for expression evaluation
-- source location metadata attached to MLIR operations
-
-## Build Instructions
-
-From the repository root:
-
-```powershell
-cmake -S . -B build
-cmake --build build
-```
-
-Run the profiler:
-
-```powershell
-.\build\Debug\flang-implicit-alloc-profiler.exe --help
-```
-
-On single-config generators such as Ninja or Makefiles, the executable may be here instead:
-
-```powershell
-.\build\flang-implicit-alloc-profiler.exe --help
-```
-
 ## CLI Usage
 
-```powershell
+```sh
 flang-implicit-alloc-profiler [options] input.mlir
 ```
 
 Options:
 
-- `--format=text` prints the default human-readable report
-- `--format=json` prints a JSON report
-- `--show-ir` includes the matched `fir.allocmem` line
-- `--threshold-mb=1` only reports allocations at least 1 MB; unknown sizes are kept visible
+- `--format=text`: print the default human-readable report.
+- `--format=json`: print a JSON report.
+- `--show-ir`: include the matched `fir.allocmem` line.
+- `--threshold-mb=1`: only report statically-sized allocations at least 1 MB; unknown sizes remain visible.
 
-Examples:
+Sample commands:
 
-```powershell
-flang-implicit-alloc-profiler --format=text tests\array_expression_temporary.mlir
-flang-implicit-alloc-profiler --format=json --show-ir tests\array_expression_temporary.mlir
-flang-implicit-alloc-profiler --threshold-mb=1 tests\array_expression_temporary.mlir
+```sh
+./flang-implicit-alloc-profiler ../tests/simple_alloc.mlir
+./flang-implicit-alloc-profiler --format=json ../tests/simple_alloc.mlir
+./flang-implicit-alloc-profiler --show-ir ../tests/array_expression_temporary.mlir
+./flang-implicit-alloc-profiler --threshold-mb=9 ../tests/array_expression_temporary.mlir
 ```
 
-Example from the build directory on Windows:
-
-```powershell
-.\build-mingw\flang-implicit-alloc-profiler.exe --format=text tests\array_expression_temporary.mlir
-```
-
-Example report:
-
-```text
-line 12: array expression temporary generates 8.00 MB temporary array allocation
-classification: PROVABLY_UNNECESSARY
-suggestion: replace the whole-array expression with an explicit loop or stack-sized local buffer
-```
-
-JSON reports include the same fields using stable keys:
+JSON output example:
 
 ```json
 {
-  "source_file": "examples/array_expression_temporary.f90",
-  "source_line": 12,
-  "source_column": 7,
+  "source_file": "examples/simple_array_expr.f90",
+  "source_line": 13,
+  "source_column": 3,
   "ir_operation_name": "fir.allocmem",
   "estimated_bytes": 8388608,
   "estimated_mb": 8.00,
@@ -117,31 +125,61 @@ JSON reports include the same fields using stable keys:
 }
 ```
 
-## Optional LLVM/MLIR Mode
+## Source Transformation
 
-If LLVM, MLIR, and Flang development packages are available on your system, configure with:
+The transformer is intentionally conservative. It handles only simple one-dimensional assignments:
 
-```powershell
-cmake -S . -B build -DFAP_ENABLE_LLVM=ON -DMLIR_DIR="path\to\mlir\cmake" -DLLVM_DIR="path\to\llvm\cmake"
-cmake --build build
+```fortran
+A = B + C
+A = B * C
+A = B + scalar
+A(:) = B(:) + C(:)
 ```
 
-LLVM mode currently prepares the build for future integration. This version uses a standalone textual MLIR scanner so the project can be built easily on a beginner machine.
+Run it and write output to a file:
 
-## Example Flang Commands
-
-When Flang is installed, you can generate HLFIR/FIR-like MLIR for the examples with commands similar to:
-
-```powershell
-flang-new -fc1 -emit-hlfir examples\array_expression_temporary.f90
-flang-new -fc1 -emit-fir examples\allocatable_reassignment.f90
+```sh
+python3 scripts/transform_fortran.py examples/simple_array_expr.f90 -o examples/transformed_simple_array_expr.f90
 ```
 
-Exact flags can vary across LLVM/Flang versions.
+Complex cases are skipped with reasons printed to stderr, for example:
 
-## Next Steps
+```text
+line 19: skipped 'A = sin(B) + C': contains calls, components, or complex indexing
+```
 
-1. Replace the textual scanner with MLIR parser APIs when LLVM/MLIR/Flang libraries are available.
-2. Improve classification using real operation parents, operands, and dialect interfaces.
-3. Add optimizer suggestions, such as rewriting expressions, avoiding unnecessary array sections, or preallocating allocatables.
-4. Add JSON or CSV output for profiling reports.
+## Evaluation
+
+Run the benchmark framework:
+
+```sh
+python3 scripts/run_evaluation.py --runs 3
+```
+
+Outputs:
+
+- `report/evaluation_results.md`
+- `report/evaluation_results.json`
+
+The script compiles and runs original/transformed Fortran programs when `gfortran`, `flang-new`, or `flang` is installed. Optional allocation tools such as `/usr/bin/time`, Valgrind Massif, and the provided `LD_PRELOAD` malloc counter are used when available.
+
+## Tests
+
+From a configured build directory:
+
+```sh
+ctest --output-on-failure
+```
+
+The CTest suite checks help output, simple allocation detection, classification behavior, text formatting, JSON formatting, `--show-ir`, and threshold filtering.
+
+## Documentation
+
+- `docs/design.md`: architecture and design notes.
+- `docs/flang_ir_notes.md`: short HLFIR/FIR terminology notes.
+- `docs/limitations.md`: known limitations and future integration path.
+- `report/final_report.md`: complete final lab report.
+
+## Notes on LLVM/MLIR/Flang
+
+This project currently uses a standalone textual scanner so it is easy to build for a lab submission. The code is structured around LLVM/MLIR/Flang concepts and can later be upgraded to use MLIR parser and operation-walking APIs directly.
