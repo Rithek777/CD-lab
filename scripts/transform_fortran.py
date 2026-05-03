@@ -18,6 +18,7 @@ ASSIGNMENT_RE = re.compile(
 ARRAY_SECTION_RE = re.compile(r"^(?P<name>[A-Za-z_]\w*)\s*\(\s*:\s*\)$")
 NAME_RE = re.compile(r"^[A-Za-z_]\w*$")
 NUMBER_RE = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)([EeDd][+-]?\d+)?$")
+SCALAR_LHS_NAMES = {"i", "j", "k", "n", "m", "iter", "reps", "checksum", "scalar"}
 
 
 @dataclass
@@ -95,6 +96,9 @@ def transform_line(line: str, line_number: int, skipped: list[str]) -> list[str]
     lhs_name = normalize_lhs(match.group("lhs"))
     if not lhs_name:
         skip(skipped, line_number, line, "left-hand side is not a whole array")
+        return [line]
+    if lhs_name.lower() in SCALAR_LHS_NAMES:
+        skip(skipped, line_number, line, "left-hand side looks like a scalar control variable")
         return [line]
 
     left_text = match.group("left").strip()

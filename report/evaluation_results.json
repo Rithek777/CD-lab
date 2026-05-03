@@ -1,0 +1,237 @@
+{
+  "compiler": "gfortran",
+  "runs": 3,
+  "platform": "Windows-11-10.0.26200-SP0",
+  "malloc_counter": {
+    "available": false,
+    "reason": "LD_PRELOAD malloc counting is not available on Windows",
+    "library": null
+  },
+  "benchmarks": [
+    {
+      "name": "benchmark_array_temp",
+      "source": "examples\\benchmark_array_temp.f90",
+      "transformed_source": "build\\evaluation\\transformed_benchmark_array_temp.f90",
+      "transform": {
+        "status": "ok",
+        "messages": ""
+      },
+      "original": {
+        "source": "examples\\benchmark_array_temp.f90",
+        "executable": "build\\evaluation\\benchmark_array_temp_original.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.058115200023166835,
+          "runs": [
+            0.11820610001450405,
+            0.028736500011291355,
+            0.027403000043705106
+          ],
+          "stdout": "800000.000",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      },
+      "transformed": {
+        "source": "build\\evaluation\\transformed_benchmark_array_temp.f90",
+        "executable": "build\\evaluation\\benchmark_array_temp_transformed.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.07079069999357064,
+          "runs": [
+            0.15145780000602826,
+            0.02974769996944815,
+            0.031166600005235523
+          ],
+          "stdout": "800000.000",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      }
+    },
+    {
+      "name": "benchmark_allocatable_realloc",
+      "source": "examples\\benchmark_allocatable_realloc.f90",
+      "transformed_source": "build\\evaluation\\transformed_benchmark_allocatable_realloc.f90",
+      "transform": {
+        "status": "ok",
+        "messages": "line 12: skipped 'n = 1000 + iter': left-hand side looks like a scalar control variable\nline 15: skipped 'checksum = checksum + sum(a)': left-hand side looks like a scalar control variable"
+      },
+      "original": {
+        "source": "examples\\benchmark_allocatable_realloc.f90",
+        "executable": "build\\evaluation\\benchmark_allocatable_realloc_original.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.05603529999886329,
+          "runs": [
+            0.13028410001425073,
+            0.019866499991621822,
+            0.01795529999071732
+          ],
+          "stdout": "67615248.0",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      },
+      "transformed": {
+        "source": "build\\evaluation\\transformed_benchmark_allocatable_realloc.f90",
+        "executable": "build\\evaluation\\benchmark_allocatable_realloc_transformed.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.05657820000002781,
+          "runs": [
+            0.13142059999518096,
+            0.019907500012777746,
+            0.018406499992124736
+          ],
+          "stdout": "67615248.0",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      }
+    },
+    {
+      "name": "benchmark_function_result",
+      "source": "examples\\benchmark_function_result.f90",
+      "transformed_source": "build\\evaluation\\transformed_benchmark_function_result.f90",
+      "transform": {
+        "status": "ok",
+        "messages": "line 14: skipped 'checksum = checksum + sum(a)': left-hand side looks like a scalar control variable\nline 27: skipped 'values(i) = real(i) * 0.5': not a simple array assignment"
+      },
+      "original": {
+        "source": "examples\\benchmark_function_result.f90",
+        "executable": "build\\evaluation\\benchmark_function_result_original.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.0803789666776235,
+          "runs": [
+            0.1498968999949284,
+            0.04847620002692565,
+            0.04276380001101643
+          ],
+          "stdout": "7.50007501E+10",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      },
+      "transformed": {
+        "source": "build\\evaluation\\transformed_benchmark_function_result.f90",
+        "executable": "build\\evaluation\\benchmark_function_result_transformed.exe",
+        "compile": {
+          "status": "ok",
+          "messages": ""
+        },
+        "run": {
+          "status": "ok",
+          "mean_seconds": 0.046625200018752366,
+          "runs": [
+            0.08905540005071089,
+            0.02555479999864474,
+            0.025265400006901473
+          ],
+          "stdout": "7.50007501E+10",
+          "stderr": ""
+        },
+        "allocation_tools": {
+          "usr_bin_time": {
+            "available": false,
+            "reason": "/usr/bin/time is unavailable"
+          },
+          "valgrind_massif": {
+            "available": false,
+            "reason": "valgrind is unavailable"
+          },
+          "ld_preload_malloc_counter": {
+            "available": false,
+            "reason": "LD_PRELOAD malloc counting is not available on Windows"
+          }
+        }
+      }
+    }
+  ]
+}
